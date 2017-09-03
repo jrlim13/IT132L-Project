@@ -1,0 +1,35 @@
+<!-- Javascript.js.html -->
+<script type="text/javascript">
+  //Disables size dropdown if not applicable to order
+  function setControl() {
+    var order = document.getElementById("order");
+    var size = document.getElementById("size");
+    var selected = order.options[order.selectedIndex].value;
+    
+    //Size dropdown is fully disabled
+    if(selected == "cz" || selected == "cs" || selected == "chp")
+      size.disabled=true;
+    //Certain sizes will be available
+    else if(selected == "pd") {
+      size.options[0].style.display = "none";
+      size.options[1].style.display = "none";
+      size.selectedIndex = 2;
+    }
+    else
+      document.getElementById("size").disabled=false;
+  }
+  
+  //Submit to server side (Code.gs)
+  function submitForm(form) {
+    //Calls denyNull()
+    if(form.name.value == ""){
+       google.script.run.denyNull();
+    }
+    //Calls addOrder() and closes script
+    else {
+      google.script.run.addOrder(form);
+      google.script.host.close();
+    }
+  }
+</script>
+      
