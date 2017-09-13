@@ -1,10 +1,23 @@
 /**
- * @OnlyCurrentDoc
+ * @NotOnlyCurrentDoc
  */
- 
+
+/*
+function onOpen() {
+    var date = new Date();
+    var dateString = d.toLocaleDateString()();
+    var sheets = SpreadsheetApp.getActiveSpreadsheet().getSheets();
+    sheets[0].setName(dateString);
+}
+*/
+
 //Open the order form dialog(HTML File)
 function openDialog() {
-  var html = HtmlService.createTemplateFromFile("Index").evaluate(); //HTML Service
+  var html = HtmlService.createTemplateFromFile("Index")
+            .evaluate()
+            .setSandboxMode(HtmlService.SandboxMode.IFRAME)
+            .setWidth(550)
+            .setHeight(350); //HTML Service
   SpreadsheetApp.getUi() // Or DocumentApp or FormApp.
       .showModalDialog(html, 'New Order');
 }
@@ -13,11 +26,6 @@ function openDialog() {
 function getContent(filename) {
     return HtmlService.createHtmlOutputFromFile(filename)
       .getContent();
-}
-
-//Denies null values,show warnings or alerts (NOT FUNCTIONING YET)
-function denyNull() {
-  Browser.msgBox('Greetings', 'Press Yes or No?', Browser.Buttons.YES_NO);
 }
 
 //Get the input from the form
@@ -32,27 +40,33 @@ function addOrder(form) {
    var subTotal = quantity*price;
    var type = form.type;
    var paid = "N";
-   
+   var address = form.address;
+   var barangay = form.barangay;
+   var city = form.city;
+   var town = form.town;
+  
    var activeSheet = SpreadsheetApp.getActiveSheet();//Get Active Sheet
    var range = activeSheet.getRange("A:K");//Get the range of the inputs
    var firstEmptyRow = {
-    getFirstEmptyRowByColumnArray: function() {
-        var activeSheet = SpreadsheetApp.getActiveSpreadsheet();
-        var column = activeSheet.getRange("A:A");
+      getFirstEmptyRowByColumnArray: function(sheet) {
+        var column = sheet.getRange("A:A");
         var values = column.getValues(); //Get all data(in column) in one call
         var ct = 0;
         while (values[ct] && values[ct][0]!="") {
           ct++;
         }
         return (ct+1);
-     }
-   }   
-   var row = firstEmptyRow.getFirstEmptyRowByColumnArray();//Assign location of the first empty row
-   
+      }
+    }   
+   var row = firstEmptyRow.getFirstEmptyRowByColumnArray(activeSheet);//Assign location of the first empty row
+
+
    if(size == undefined)
      size = "N/A";
    
-   range.getCell(row, 1).setValue((orderNumber+row)-2);
+   orderNumber = (orderNumber+row)-2
+   
+   range.getCell(row, 1).setValue(orderNumber);
    range.getCell(row, 2).setValue(name);
    range.getCell(row, 3).setValue(orderCode);
    range.getCell(row, 4).setValue(getOrder(orderCode));
@@ -62,6 +76,9 @@ function addOrder(form) {
    range.getCell(row, 8).setValue(subTotal);
    range.getCell(row, 9).setValue(type);
    range.getCell(row, 11).setValue(paid);
+   
+   if(type == "Delivery")
+    copyOrderToDriversLog(firstEmptyRow, form, orderNumber,subTotal, paid);
 }
 
 function getOrder(orderCode)
@@ -85,7 +102,7 @@ function getOrder(orderCode)
    return orderNameValue;
 }
 
-function getPrice(orderCode, size)
+function getPrice(orderCode, size, paid)
 {
     var price;
     
@@ -150,4 +167,24 @@ function getPrice(orderCode, size)
 		price = "INVALID ORDER";
         
     return price;
+}
+
+
+function copyOrderToDriversLog(firstEmptyRow, form, orderNumber,subTotal, paid) {
+    var tss = SpreadsheetApp.openById("19ebLqKLq2iKaCbx4B1DbohxZ0WkG9ItB09V6xvACVJM"); //replace with destination ID
+    var ts = tss.getSheetByName("[Date-Today]"); //replace with destination Sheet tab name
+    var first = firstEmptyRow.getFirstEmptyRowByColumnArray(ts);
+    var tsRange = ts.getRange("A:J");
+    
+    tsRange.getCell(first, 1).setValue(orderNumber);
+    tsRange.getCell(first, 2).setValue(form.name);
+    tsRange.getCell(first, 3).setValue(form.address);
+    tsRange.getCell(first, 4).setValue(form.barangay);
+    tsRange.getCell(first, 5).setValue(form.city);
+    tsRange.getCell(first, 6).setValue(form.town);
+    tsRange.getCell(first, 7).setValue(subTotal);  
+    tsRange.getCell(first, 8).setValue(form.changeFor);
+    tsRange.getCell(first, 9).setValue(form.changeFor-subTotal);
+    tsRange.getCell(first, 10).setValue(paid);
+    
 }

@@ -1,13 +1,15 @@
 <!-- Javascript.js.html -->
 <script type="text/javascript">
-  //Disables size dropdown if not applicable to order
-  function setControl() {
+
+   
+  //Disables size dropdown if not applicable to orderCode
+  function setControlSize() {
     var order = document.getElementById("order");
     var size = document.getElementById("size");
     var selected = order.options[order.selectedIndex].value;
     
     //Size dropdown is fully disabled
-    if(selected == "cz" || selected == "cs" || selected == "chp")
+    if(selected == "cz" || selected == "cs" || selected == "chp" || selected == "cl")
       size.disabled=true;
     //Certain sizes will be available
     else if(selected == "pd") {
@@ -15,15 +17,45 @@
       size.options[1].style.display = "none";
       size.selectedIndex = 2;
     }
-    else
+    else {
       document.getElementById("size").disabled=false;
+      size.options[0].style.display = "block";
+      size.options[1].style.display = "block";
+      size.selectedIndex = 0;
+    }
   }
   
+  //Checks whether the order is for delivery to get cust address
+  function setControlAddress() {
+    if(document.getElementById("delivery").checked) { 
+        document.getElementById("delivInfo").style.display = "inline";
+        document.getElementById("delivInfo").click();
+    }
+    else
+       document.getElementById("delivInfo").style.display = "none";
+  }
+  
+  //Denies null values,show warnings or alerts (NOT FUNCTIONING YET)
+  function denyNull() {
+    alert("Please fill required fields.");
+  }
+
   //Submit to server side (Code.gs)
   function submitForm(form) {
+    //Checks whether one of the type radio button has been checked
+    var typeRadio = document.getElementsByName("type");
+    
+    var value;
+    for (var i = 0; i < typeRadio.length; i++) {
+      if (typeRadio[i].checked) {
+          // get value, set checked flag or do whatever you need to
+          value = typeRadio[i].value;       
+      }
+    }
+
     //Calls denyNull()
-    if(form.name.value == ""){
-       google.script.run.denyNull();
+    if(form.name.value == "" || value == undefined){
+      
     }
     //Calls addOrder() and closes script
     else {
@@ -31,5 +63,23 @@
       google.script.host.close();
     }
   }
+  
+  function openTab(evt, cityName) {
+    var i, tabcontent, tablinks;
+    tabcontent = document.getElementsByClassName("tabcontent");
+    for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+    }
+    tablinks = document.getElementsByClassName("tablinks");
+    for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+    }
+    document.getElementById(cityName).style.display = "block";
+    evt.currentTarget.className += " active";
+}
+
+  document.getElementById("defaultOpen").click();
+  document.getElementById("delivInfo").style.display = "none";
+
 </script>
       

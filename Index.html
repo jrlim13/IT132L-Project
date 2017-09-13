@@ -4,12 +4,20 @@
     <base target="_top">
      <?!= getContent("Stylesheet") ?>
   </head>
-  <body>
+  <body onload="hideTextAddress()">
 	  <form>
-          <label for="name">Customer Name:</label> <input type="text" name ="name" required/>
+      
+      <div class="tab">
+      <button class="tablinks" onclick="openTab(event, 'Order')" id="defaultOpen">Order Information</button>
+      <button class="tablinks" onclick="openTab(event, 'Delivery')" id="delivInfo">Delivery Information</button>
+      </div>
+
+          <div id="Order" class="tabcontent">
+          <label for="name" class="labelForm">Customer Name:</label>
+          <input type="text" name ="name" required/>
           <br><br>
-		  <label for="orderName">Order Name:</label>
-		  <select name="order" id="order" onchange="setControl()" required>
+		  <label for="orderName" class="labelForm">Order Name:</label>
+		  <select name="order" id="order" onchange="setControlSize()" required>
             <option value="fs" selected>Fracasso Special</option>
             <option value="hw">Hawaiian</option>
             <option value="pd">Pizza Dos</option>
@@ -21,8 +29,8 @@
             <option value="chp">Chocolate Pizza</option>
             <option value="cs">Choco Souffle</option>
             <option value="pm">Pepperoni Max</option>
-		  </select>
-          <label for="size">Size:</label>
+		  </select><br><br>
+          <label for="size" class="labelForm">Size:</label>
           <select name="size" id="size">
             <option value="6">6</option>
             <option value="10">10</option>
@@ -31,16 +39,36 @@
             <option value="30">30</option>
 		  </select>
           <br><br>
-          <label for="quantity">Quantity:</label><input type="number" name="quantity" min="1" value="1" required/>
+          <label for="quantity" class="labelForm">Quantity:</label>
+          <input type="number" name="quantity" min="1" value="1" required/>
           <br><br>
-          <label>Type:</label><br>
-          <input type="radio" name="type" id="dineIn" value="Dine-In" required/>
+          <label for="type">Type:</label><br>
+          <input type="radio" name="type" id="dineIn" value="Dine-In" onclick="setControlAddress()" required/>
           <label for="dineIn">Dine-In</label><br>
-          <input type="radio" name="type" id="takeOut" value="Take-Out" required/>
+          <input type="radio" name="type" id="takeOut" value="Take-Out" onclick="setControlAddress()" required/>
           <label for="takeOut">Take-Out</label><br>
-          <input type="radio" name="type" id="delivery" value="Delivery" required/>
+          <input type="radio" name="type" id="delivery" value="Delivery" onclick="setControlAddress()" required/>
           <label for="delivery">Delivery</label><br><br>
-          <input type="button" value="Add Order" onClick="submitForm(this.form)"/>
+          </div>
+
+
+            <div id="Delivery" class="tabcontent">
+
+            <label for="address" class="labelForm">House/Unit/Floor No.:</label>
+            <input type="text" name="address" id="addressText" required/><br><br>
+            <label for="barangay" class="labelForm">Subdiv./Barangay:</label>
+            <input type="text" name="barangay" id="barangayText" required/><br><br>
+            <label for="city" class="labelForm">City/Province:</label>
+            <input type="text" name="city" id="cityText" required/><br><br>
+            <label for="town" class="labelForm">Town:</label>
+            <input type="text" name="town" id="townText" required/><br><br>
+            <label for="changeFor" class="labelForm">Change for(₱):</label>
+            <input type="number" name="changeFor" id="changeFor" required/><br><br>
+         
+             </div>
+          
+          <input type="submit" value="Add Order" class="button" onClick="submitForm(this.form)"/>
+
 	  </form>
       <?!= getContent("Javascript") ?>
   </body>
